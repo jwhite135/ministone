@@ -35,7 +35,6 @@ class DataStoreTest {
 
 		assertThat(file).exists();
 		assertThat(store.findAllEmployees()).hasSize(4);
-		// Sample shifts fall in the current Monday-to-Sunday week.
 		assertThat(store.findAllShifts()).allSatisfy(s -> assertThat(s.date())
 				.isBetween(LocalDate.of(2026, 10, 12), LocalDate.of(2026, 10, 18)));
 	}
@@ -47,7 +46,6 @@ class DataStoreTest {
 		Employee added = first.addEmployee("Test Person", "Host", new BigDecimal("16.00"));
 		Shift shift = first.addShift(added.id(), TODAY, LocalTime.of(22, 0), LocalTime.of(2, 0));
 
-		// A new DataStore reading the same file simulates restarting the server.
 		DataStore second = new DataStore(jsonMapper, file, TODAY);
 
 		assertThat(second.findEmployee(added.id())).contains(added);
@@ -77,7 +75,7 @@ class DataStoreTest {
 		DataStore reloaded = new DataStore(jsonMapper, file, TODAY);
 		Employee added = reloaded.addEmployee("New Hire", "Server", new BigDecimal("15.00"));
 
-		assertThat(added.id()).isEqualTo(5); // sample data uses ids 1-4
+		assertThat(added.id()).isEqualTo(5);
 	}
 
 	@Test
@@ -88,7 +86,7 @@ class DataStoreTest {
 		assertThatThrownBy(() -> new DataStore(jsonMapper, file, TODAY))
 				.isInstanceOf(IllegalStateException.class)
 				.hasMessageContaining("Could not read data file");
-		assertThat(file).hasContent("{ this is not json"); // left untouched
+		assertThat(file).hasContent("{ this is not json");
 	}
 
 }

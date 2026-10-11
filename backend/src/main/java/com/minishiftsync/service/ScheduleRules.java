@@ -20,10 +20,6 @@ import com.minishiftsync.model.Shift;
 import com.minishiftsync.service.WeekSchedule.EmployeeTotals;
 import com.minishiftsync.service.WeekSchedule.ShiftEntry;
 
-/**
- * Pure scheduling rules: no Spring, no files, no HTTP. Everything here is a function of its
- * inputs, which makes it easy to unit test.
- */
 public final class ScheduleRules {
 
 	public static final Comparator<Shift> BY_START = Comparator.comparing(Shift::startDateTime);
@@ -33,15 +29,11 @@ public final class ScheduleRules {
 	private ScheduleRules() {
 	}
 
-	/**
-	 * Two shifts overlap if each starts before the other ends. Shifts are half-open intervals
-	 * [start, end), so one ending at 13:00 and another starting at 13:00 do not overlap.
-	 */
+	/** Shifts are half-open [start, end), so back-to-back shifts don't overlap. */
 	public static boolean overlaps(Shift a, Shift b) {
 		return a.startDateTime().isBefore(b.endDateTime()) && b.startDateTime().isBefore(a.endDateTime());
 	}
 
-	/** Finds the earliest of the employee's other shifts that overlaps {@code candidate}, if any. */
 	public static Optional<Shift> findOverlap(Shift candidate, Collection<Shift> existing) {
 		return existing.stream()
 				.filter(s -> s.employeeId() == candidate.employeeId())
@@ -50,7 +42,6 @@ public final class ScheduleRules {
 				.min(BY_START);
 	}
 
-	/** Minutes of {@code shift} that fall inside [from, to). Zero if they don't intersect. */
 	public static long minutesWithin(Shift shift, LocalDateTime from, LocalDateTime to) {
 		LocalDateTime start = shift.startDateTime().isAfter(from) ? shift.startDateTime() : from;
 		LocalDateTime end = shift.endDateTime().isBefore(to) ? shift.endDateTime() : to;
@@ -61,7 +52,6 @@ public final class ScheduleRules {
 		return BigDecimal.valueOf(minutes).divide(MINUTES_PER_HOUR, 2, RoundingMode.HALF_UP);
 	}
 
-	/** Pay for {@code minutes} of work, rounded to the cent once at the end. */
 	public static BigDecimal pay(long minutes, BigDecimal hourlyRate) {
 		return hourlyRate.multiply(BigDecimal.valueOf(minutes)).divide(MINUTES_PER_HOUR, 2, RoundingMode.HALF_UP);
 	}
@@ -70,10 +60,7 @@ public final class ScheduleRules {
 		return anyDay.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
 	}
 
-	/**
-	 * Builds the Monday-to-Sunday week containing {@code anyDay}. Hours count in the week they are
-	 * worked, so an overnight shift from Sunday into Monday is split between the two weeks.
-	 */
+	/** Hours count in the week they're worked, so a Sunday overnight shift is split across two weeks. */
 	public static WeekSchedule summarizeWeek(LocalDate anyDay, List<Employee> employees, List<Shift> shifts) {
 		LocalDate monday = weekStart(anyDay);
 		LocalDateTime from = monday.atStartOfDay();

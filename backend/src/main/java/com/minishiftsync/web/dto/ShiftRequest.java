@@ -5,7 +5,6 @@ import java.time.LocalTime;
 
 import jakarta.validation.constraints.NotNull;
 
-/** What the client sends to create a shift. Times are "HH:mm"; dates are "yyyy-MM-dd". */
 public record ShiftRequest(
 		@NotNull(message = "is required") Long employeeId,
 		@NotNull(message = "is required") LocalDate date,

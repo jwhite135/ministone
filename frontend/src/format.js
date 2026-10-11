@@ -8,8 +8,8 @@ export function formatHours(hours) {
   return `${Number(hours).toFixed(1)} h`
 }
 
-// Dates travel as "yyyy-MM-dd" strings. We build Date objects in *local* time (never
-// new Date("2026-10-12"), which is UTC midnight and can show as the previous day in the US).
+// new Date('2026-10-12') is UTC midnight, which is the previous day in US time zones,
+// so ISO dates are parsed into local time instead.
 
 function fromIso(isoDate) {
   const [y, m, d] = isoDate.split('-').map(Number)
@@ -31,17 +31,14 @@ export function addDays(isoDate, days) {
   return toIso(date)
 }
 
-/** "2026-10-12" -> "Mon, Oct 12" */
 export function formatDay(isoDate) {
   return fromIso(isoDate).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })
 }
 
-/** "2026-10-12" -> "Mon" */
 export function formatWeekday(isoDate) {
   return fromIso(isoDate).toLocaleDateString('en-US', { weekday: 'short' })
 }
 
-/** "2026-10-12" -> "Oct 12, 2026" */
 export function formatLongDate(isoDate) {
   return fromIso(isoDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
 }

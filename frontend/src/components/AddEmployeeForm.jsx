@@ -5,20 +5,20 @@ import Field from './Field.jsx'
 import { fieldProps } from './fieldProps.js'
 
 const EMPTY = { name: '', position: '', hourlyRate: '' }
+const POSITION_HINT = 'e.g. Server, Cook, Host'
 
 export default function AddEmployeeForm({ onCreated }) {
   const [form, setForm] = useState(EMPTY)
   const [success, setSuccess] = useState(null)
   const { run, submitting, error, fieldErrors } = useApiSubmit()
 
-  // One change handler for every input: the input's `name` says which field to update.
   function handleChange(event) {
     const { name, value } = event.target
     setForm((prev) => ({ ...prev, [name]: value }))
   }
 
   async function handleSubmit(event) {
-    event.preventDefault() // stop the browser's default full-page form submit
+    event.preventDefault()
     setSuccess(null)
     const created = await run(() =>
       createEmployee({
@@ -35,7 +35,6 @@ export default function AddEmployeeForm({ onCreated }) {
   }
 
   return (
-    // noValidate: let the backend do validation so its messages show inline (see README).
     <form onSubmit={handleSubmit} noValidate>
       <h2>Add employee</h2>
 
@@ -43,12 +42,12 @@ export default function AddEmployeeForm({ onCreated }) {
         <input name="name" value={form.name} onChange={handleChange} {...fieldProps('emp-name', fieldErrors.name)} />
       </Field>
 
-      <Field id="emp-position" label="Position" error={fieldErrors.position} hint="e.g. Server, Cook, Host">
+      <Field id="emp-position" label="Position" error={fieldErrors.position} hint={POSITION_HINT}>
         <input
           name="position"
           value={form.position}
           onChange={handleChange}
-          {...fieldProps('emp-position', fieldErrors.position, 'e.g. Server, Cook, Host')}
+          {...fieldProps('emp-position', fieldErrors.position, POSITION_HINT)}
         />
       </Field>
 

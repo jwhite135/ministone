@@ -2,18 +2,12 @@ import { addDays, formatDay, formatHours, formatWeekday, todayIso } from '../for
 
 const POSITION_COLORS = ['#b15d12', '#2f6fd6', '#8a3fb8', '#1e8a5a', '#c2334d', '#0f7f8f']
 
-/**
- * `positions` is every position name; colors are handed out in alphabetical order so each differs.
- * Clicking a shift calls `onSelect(shift)`; `selectedId` highlights the shift being edited.
- */
 export default function WeekGrid({ weekStart, shifts, positions, selectedId, onSelect }) {
   const days = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i))
   const today = todayIso()
-  const sortedPositions = [...new Set(positions)].sort()
-  const colorFor = (position) => POSITION_COLORS[sortedPositions.indexOf(position) % POSITION_COLORS.length]
+  const colorFor = (position) => POSITION_COLORS[positions.indexOf(position) % POSITION_COLORS.length]
 
-  // Group shifts by day. A shift from last Sunday night that runs into Monday shows on Monday.
-  // ISO date strings sort and compare correctly as text.
+  // A shift carried over from last Sunday night is shown on Monday.
   const shiftsByDay = Object.fromEntries(days.map((d) => [d, []]))
   for (const shift of shifts) {
     shiftsByDay[shift.date < weekStart ? weekStart : shift.date].push(shift)
@@ -50,7 +44,6 @@ export default function WeekGrid({ weekStart, shifts, positions, selectedId, onS
 function ShiftCard({ shift, color, carriedOver, selected, onSelect }) {
   const partial = Number(shift.hoursInWeek) !== Number(shift.hours)
   return (
-    // A real <button>, so it works with the keyboard (Tab + Enter) and screen readers.
     <button
       type="button"
       className={'shift-card' + (selected ? ' selected' : '')}

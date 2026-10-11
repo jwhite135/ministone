@@ -13,7 +13,6 @@ import com.minishiftsync.store.DataStore;
 import com.minishiftsync.web.dto.EmployeeRequest;
 import com.minishiftsync.web.dto.ShiftRequest;
 
-/** Business rules for employees and shifts. Controllers call this; this calls the DataStore. */
 @Service
 public class SchedulingService {
 
@@ -21,7 +20,6 @@ public class SchedulingService {
 
 	private final DataStore store;
 
-	// Spring sees this constructor and passes in the DataStore bean ("dependency injection").
 	public SchedulingService(DataStore store) {
 		this.store = store;
 	}
@@ -46,24 +44,17 @@ public class SchedulingService {
 				.toList();
 	}
 
-	/**
-	 * Synchronized (like the other shift writes) so the overlap check and the save happen as one
-	 * step. Otherwise two requests arriving together could both pass the check and both be saved
-	 * ("check-then-act" race).
-	 */
+	// Shift writes are synchronized so the overlap check and the save can't interleave.
 	public synchronized Shift createShift(ShiftRequest request) {
 		validate(0, request);
 		return store.addShift(request.employeeId(), request.date(), request.startTime(), request.endTime());
 	}
 
 	public synchronized Shift updateShift(long id, ShiftRequest request) {
-		if (store.findAllShifts().stream().noneMatch(s -> s.id() == id)) {
-			throw ApiException.notFound("Shift " + id + " does not exist.");
-		}
-		// Passing the real id means the overlap check ignores this shift's own current time slot.
+		store.findShift(id).orElseThrow(() -> ApiException.notFound("Shift " + id + " does not exist."));
 		validate(id, request);
 		return store.updateShift(id, request.employeeId(), request.date(), request.startTime(), request.endTime())
-				.orElseThrow(() -> ApiException.notFound("Shift " + id + " does not exist."));
+				.orElseThrow();
 	}
 
 	public synchronized void deleteShift(long id) {
@@ -72,7 +63,6 @@ public class SchedulingService {
 		}
 	}
 
-	/** The week containing {@code anyDayInWeek}, optionally limited to one position (case-insensitive). */
 	public WeekSchedule getWeek(LocalDate anyDayInWeek, String position) {
 		List<Employee> employees = store.findAllEmployees().stream()
 				.filter(e -> position == null || position.isBlank() || e.position().equalsIgnoreCase(position.trim()))
@@ -80,7 +70,7 @@ public class SchedulingService {
 		return ScheduleRules.summarizeWeek(anyDayInWeek, employees, store.findAllShifts());
 	}
 
-	/** Checks a new or edited shift. {@code shiftId} is 0 for a new shift. */
+	/** {@code shiftId} is 0 for a new shift; otherwise that shift is excluded from the overlap check. */
 	private void validate(long shiftId, ShiftRequest request) {
 		Employee employee = store.findEmployee(request.employeeId())
 				.orElseThrow(() -> ApiException.badRequest("Employee " + request.employeeId() + " does not exist."));

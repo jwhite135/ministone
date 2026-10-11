@@ -2,7 +2,6 @@ package com.minishiftsync.service;
 
 import org.springframework.http.HttpStatus;
 
-/** A business-rule failure that should be reported to the client with a specific HTTP status. */
 public class ApiException extends RuntimeException {
 
 	private final HttpStatus status;

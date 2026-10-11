@@ -8,19 +8,16 @@ import WeekNav from './components/WeekNav.jsx'
 import { addDays, todayIso } from './format.js'
 
 export default function App() {
-  // Any date inside the week being viewed; the backend works out Monday-Sunday from it.
   const [weekDate, setWeekDate] = useState(todayIso)
-  const [position, setPosition] = useState('') // '' = all positions
-  // Bumped after every change to force a reload of the current week.
+  const [position, setPosition] = useState('')
   const [refreshKey, setRefreshKey] = useState(0)
   const [week, setWeek] = useState(null)
-  const [employees, setEmployees] = useState([]) // everyone, regardless of the filter
-  const [editing, setEditing] = useState(null) // the shift being edited, or null when adding
+  const [employees, setEmployees] = useState([])
+  const [editing, setEditing] = useState(null)
   const [error, setError] = useState(null)
 
-  // Re-runs whenever the viewed week or filter changes, or something was saved.
   useEffect(() => {
-    let ignore = false // set by the cleanup below so a stale response can't overwrite newer state
+    let ignore = false
     Promise.all([getWeek(weekDate, position), getEmployees()])
       .then(([weekData, employeeData]) => {
         if (!ignore) {
@@ -42,7 +39,7 @@ export default function App() {
 
   function handleShiftSaved(shift) {
     setEditing(null)
-    setWeekDate(shift.date) // jump to the week the shift is in
+    setWeekDate(shift.date)
     refresh()
   }
 
@@ -101,7 +98,6 @@ export default function App() {
 
           <div className="forms">
             <section>
-              {/* key: a different shift (or "new") gets a freshly mounted form with its own state */}
               <ShiftForm
                 key={editing?.id ?? 'new'}
                 employees={employees}

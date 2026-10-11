@@ -1,6 +1,5 @@
 import { formatHours, formatMoney } from '../format.js'
 
-/** One row per employee with their hours and estimated pay for the week. */
 export default function EmployeeTotalsTable({ employees, totalHours, totalPay }) {
   if (employees.length === 0) {
     return <p className="muted">No employees yet.</p>

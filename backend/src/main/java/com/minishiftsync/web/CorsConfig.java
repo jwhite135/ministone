@@ -5,10 +5,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-/**
- * Lets the React dev server (a different origin: another port) call this API from the browser.
- * Without this, the browser blocks the frontend from reading our responses.
- */
 @Configuration
 public class CorsConfig implements WebMvcConfigurer {
 

@@ -11,10 +11,6 @@ import java.util.List;
 import com.minishiftsync.model.Employee;
 import com.minishiftsync.model.Shift;
 
-/**
- * Sample data written on first run. Shifts are placed in the current week (Monday to Sunday) so
- * the weekly view always has something to show, and include a split shift and overnight shifts.
- */
 public final class SampleData {
 
 	private SampleData() {
@@ -29,22 +25,19 @@ public final class SampleData {
 				new Employee(3, "Chloe Nguyen", "Host", new BigDecimal("14.25")),
 				new Employee(4, "Dev Patel", "Cook", new BigDecimal("19.75")));
 
+		// Includes a split shift (Ava, Monday) and a Sunday overnight shift that runs into next week.
 		List<Shift> shifts = new ArrayList<>();
-		// Ava: split shift on Monday (two non-overlapping shifts on the same day)
 		addShift(shifts, 1, monday, "09:00", "13:00");
 		addShift(shifts, 1, monday, "17:00", "21:00");
 		addShift(shifts, 1, monday.plusDays(2), "11:00", "19:00");
 		addShift(shifts, 1, monday.plusDays(4), "16:00", "23:00");
-		// Ben: early mornings plus an overnight shift Thursday into Friday
 		addShift(shifts, 2, monday, "06:00", "14:00");
 		addShift(shifts, 2, monday.plusDays(1), "06:00", "14:00");
 		addShift(shifts, 2, monday.plusDays(3), "22:00", "06:00");
 		addShift(shifts, 2, monday.plusDays(5), "10:00", "18:00");
-		// Chloe: evenings
 		addShift(shifts, 3, monday.plusDays(1), "11:00", "15:00");
 		addShift(shifts, 3, monday.plusDays(4), "17:00", "22:00");
 		addShift(shifts, 3, monday.plusDays(5), "17:00", "22:00");
-		// Dev: closing cook, including a Sunday overnight that runs into next week
 		addShift(shifts, 4, monday.plusDays(2), "14:00", "22:00");
 		addShift(shifts, 4, monday.plusDays(4), "22:00", "04:00");
 		addShift(shifts, 4, monday.plusDays(6), "22:00", "02:00");

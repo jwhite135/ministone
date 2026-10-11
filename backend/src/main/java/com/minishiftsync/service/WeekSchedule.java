@@ -7,7 +7,6 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
-/** Everything the weekly view needs: the week's shifts and each employee's hours and pay. */
 public record WeekSchedule(
 		LocalDate weekStart,
 		LocalDate weekEnd,
@@ -16,10 +15,7 @@ public record WeekSchedule(
 		BigDecimal totalHours,
 		BigDecimal totalPay) {
 
-	/**
-	 * A shift with its employee's name attached. {@code hoursInWeek} can be less than
-	 * {@code hours} when an overnight shift crosses the start or end of the week.
-	 */
+	/** {@code hoursInWeek} is less than {@code hours} when an overnight shift crosses a week boundary. */
 	public record ShiftEntry(
 			long id,
 			long employeeId,

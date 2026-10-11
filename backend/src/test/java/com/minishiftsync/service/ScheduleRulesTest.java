@@ -16,7 +16,6 @@ import com.minishiftsync.service.WeekSchedule.EmployeeTotals;
 
 class ScheduleRulesTest {
 
-	// Week of Monday 2026-10-12 through Sunday 2026-10-18.
 	private static final LocalDate MON = LocalDate.of(2026, 10, 12);
 	private static final LocalDate TUE = MON.plusDays(1);
 	private static final LocalDate SUN = MON.plusDays(6);
@@ -153,8 +152,7 @@ class ScheduleRulesTest {
 
 		@Test
 		void payIsRoundedToTheCentOnceFromTotalMinutes() {
-			// 3 shifts of 20 minutes at $10.01/hr: 60 min -> $10.01.
-			// Rounding each shift first would give 3 x $3.34 = $10.02.
+			// Rounding each 20-minute shift first would give 3 x $3.34 = $10.02.
 			Employee e = new Employee(1, "Pat", "Host", new BigDecimal("10.01"));
 			List<Shift> shifts = List.of(
 					shift(1, 1, MON, "09:00", "09:20"),

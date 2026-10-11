@@ -25,11 +25,7 @@ import com.minishiftsync.model.Shift;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.json.JsonMapper;
 
-/**
- * Holds all employees and shifts in memory and mirrors every change to a JSON file, so data
- * survives a server restart. Spring creates exactly one instance (a singleton), but web requests
- * arrive on many threads at once, so every method is synchronized.
- */
+/** In-memory data mirrored to a JSON file. Synchronized because requests run on many threads. */
 @Component
 public class DataStore {
 
@@ -47,7 +43,6 @@ public class DataStore {
 		this(jsonMapper, Path.of(dataFile), LocalDate.now());
 	}
 
-	/** Used by tests to control the file location and the date sample data is built around. */
 	public DataStore(JsonMapper jsonMapper, Path dataFile, LocalDate today) {
 		this.jsonMapper = jsonMapper;
 		this.dataFile = dataFile.toAbsolutePath();
@@ -82,6 +77,10 @@ public class DataStore {
 		return List.copyOf(shifts);
 	}
 
+	public synchronized Optional<Shift> findShift(long id) {
+		return shifts.stream().filter(s -> s.id() == id).findFirst();
+	}
+
 	public synchronized Shift addShift(long employeeId, LocalDate date, LocalTime startTime, LocalTime endTime) {
 		Shift shift = new Shift(nextShiftId, employeeId, date, startTime, endTime);
 		shifts.add(shift);
@@ -90,7 +89,6 @@ public class DataStore {
 		return shift;
 	}
 
-	/** Replaces the shift with this id. Returns empty if there is no such shift. */
 	public synchronized Optional<Shift> updateShift(long id, long employeeId, LocalDate date, LocalTime startTime,
 			LocalTime endTime) {
 		for (int i = 0; i < shifts.size(); i++) {
@@ -106,7 +104,6 @@ public class DataStore {
 		return Optional.empty();
 	}
 
-	/** Returns false if there was no shift with this id. */
 	public synchronized boolean deleteShift(long id) {
 		for (int i = 0; i < shifts.size(); i++) {
 			if (shifts.get(i).id() == id) {
@@ -125,7 +122,6 @@ public class DataStore {
 			replaceContents(data);
 		}
 		catch (IOException | JacksonException ex) {
-			// Fail loudly instead of starting empty and overwriting the user's data on the next save.
 			throw new IllegalStateException("Could not read data file " + dataFile
 					+ ". Fix the JSON or delete the file to start over with sample data.", ex);
 		}
@@ -144,7 +140,6 @@ public class DataStore {
 		nextShiftId = shifts.stream().mapToLong(Shift::id).max().orElse(0) + 1;
 	}
 
-	/** Saves to disk; if that fails, undoes the in-memory change so memory and file stay in sync. */
 	private void saveOrUndo(Runnable undo) {
 		try {
 			save();
@@ -155,10 +150,7 @@ public class DataStore {
 		}
 	}
 
-	/**
-	 * Writes to a temporary file, then renames it over the real one. The rename is atomic, so a
-	 * crash mid-write leaves the previous complete file instead of a half-written one.
-	 */
+	/** Write to a temp file and rename it, so a crash can't leave a half-written data file. */
 	private void save() {
 		Path tempFile = dataFile.resolveSibling(dataFile.getFileName() + ".tmp");
 		try {

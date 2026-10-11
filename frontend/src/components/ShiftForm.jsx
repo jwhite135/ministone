@@ -5,10 +5,7 @@ import useApiSubmit from '../useApiSubmit.js'
 import Field from './Field.jsx'
 import { fieldProps } from './fieldProps.js'
 
-/**
- * Adds a new shift, or edits `shift` when one is given. The parent renders this with
- * key={shift?.id ?? 'new'}, so choosing a different shift mounts a fresh form with fresh state.
- */
+// Rendered with key={shift?.id ?? 'new'}, so selecting another shift remounts it with fresh state.
 export default function ShiftForm({ employees, shift, defaultDate, onSaved, onDeleted, onCancel }) {
   const editing = shift != null
   const [form, setForm] = useState(() =>
@@ -21,7 +18,6 @@ export default function ShiftForm({ employees, shift, defaultDate, onSaved, onDe
   const formRef = useRef(null)
   const firstFieldRef = useRef(null)
 
-  // When the form opens for editing, bring it into view and put the cursor in it.
   useEffect(() => {
     if (editing) {
       formRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' })
@@ -34,8 +30,6 @@ export default function ShiftForm({ employees, shift, defaultDate, onSaved, onDe
     setForm((prev) => ({ ...prev, [name]: value }))
   }
 
-  // Derived from state on every render, so the hint updates as the user types.
-  // "HH:mm" strings compare correctly as text: "06:00" < "22:00".
   const endsNextDay = form.startTime && form.endTime && form.endTime < form.startTime
   const endHint = endsNextDay ? 'Ends the next day (overnight shift)' : null
   const nameOf = (employeeId) => employees.find((e) => e.id === employeeId)?.name ?? 'employee'
@@ -55,7 +49,7 @@ export default function ShiftForm({ employees, shift, defaultDate, onSaved, onDe
         setSuccess(`Added a shift for ${nameOf(saved.employeeId)} on ${formatDay(saved.date)}.`)
         setForm((prev) => ({ ...prev, startTime: '', endTime: '' }))
       }
-      onSaved(saved, editing)
+      onSaved(saved)
     }
   }
 
@@ -63,7 +57,7 @@ export default function ShiftForm({ employees, shift, defaultDate, onSaved, onDe
     const label = `${shift.employeeName}'s shift on ${formatDay(shift.date)}, ${shift.startTime}–${shift.endTime}`
     if (!window.confirm(`Delete ${label}?`)) return
     const deleted = await run(() => deleteShift(shift.id).then(() => true))
-    if (deleted) onDeleted(shift)
+    if (deleted) onDeleted()
   }
 
   return (
