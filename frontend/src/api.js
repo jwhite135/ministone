@@ -33,3 +33,13 @@ async function request(path, options = {}) {
 export function getWeek(date) {
   return request('/api/schedule/week' + (date ? `?date=${date}` : ''))
 }
+
+/** `employee` is { name, position, hourlyRate }. */
+export function createEmployee(employee) {
+  return request('/api/employees', { method: 'POST', body: JSON.stringify(employee) })
+}
+
+/** `shift` is { employeeId, date: "yyyy-MM-dd", startTime: "HH:mm", endTime: "HH:mm" }. */
+export function createShift(shift) {
+  return request('/api/shifts', { method: 'POST', body: JSON.stringify(shift) })
+}
