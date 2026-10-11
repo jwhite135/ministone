@@ -90,6 +90,35 @@ public class DataStore {
 		return shift;
 	}
 
+	/** Replaces the shift with this id. Returns empty if there is no such shift. */
+	public synchronized Optional<Shift> updateShift(long id, long employeeId, LocalDate date, LocalTime startTime,
+			LocalTime endTime) {
+		for (int i = 0; i < shifts.size(); i++) {
+			Shift old = shifts.get(i);
+			if (old.id() == id) {
+				Shift updated = new Shift(id, employeeId, date, startTime, endTime);
+				int index = i;
+				shifts.set(index, updated);
+				saveOrUndo(() -> shifts.set(index, old));
+				return Optional.of(updated);
+			}
+		}
+		return Optional.empty();
+	}
+
+	/** Returns false if there was no shift with this id. */
+	public synchronized boolean deleteShift(long id) {
+		for (int i = 0; i < shifts.size(); i++) {
+			if (shifts.get(i).id() == id) {
+				Shift removed = shifts.remove(i);
+				int index = i;
+				saveOrUndo(() -> shifts.add(index, removed));
+				return true;
+			}
+		}
+		return false;
+	}
+
 	private void load() {
 		try {
 			StoreData data = jsonMapper.readValue(Files.readAllBytes(dataFile), StoreData.class);

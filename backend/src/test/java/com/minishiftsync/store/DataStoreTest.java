@@ -55,6 +55,21 @@ class DataStoreTest {
 	}
 
 	@Test
+	void editsAndDeletesSurviveRestart() {
+		Path file = tempDir.resolve("data.json");
+		DataStore first = new DataStore(jsonMapper, file, TODAY);
+		Shift toEdit = first.findAllShifts().get(0);
+		Shift toDelete = first.findAllShifts().get(1);
+		Shift edited = first.updateShift(toEdit.id(), toEdit.employeeId(), toEdit.date(), LocalTime.of(7, 0),
+				LocalTime.of(8, 0)).orElseThrow();
+		first.deleteShift(toDelete.id());
+
+		DataStore second = new DataStore(jsonMapper, file, TODAY);
+
+		assertThat(second.findAllShifts()).contains(edited).doesNotContain(toEdit, toDelete);
+	}
+
+	@Test
 	void idsContinueAfterRestart() {
 		Path file = tempDir.resolve("data.json");
 		new DataStore(jsonMapper, file, TODAY);

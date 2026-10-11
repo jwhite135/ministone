@@ -7,7 +7,9 @@ async function request(path, options = {}) {
   try {
     response = await fetch(API_URL + path, {
       ...options,
-      headers: { 'Content-Type': 'application/json', ...options.headers },
+      // Only declare JSON when we send a body. On a GET this header would turn a "simple" request
+      // into one that needs a CORS preflight (an extra OPTIONS round trip) every time.
+      headers: options.body ? { 'Content-Type': 'application/json' } : {},
     })
   } catch {
     // fetch only throws when there is no usable response: the server is down, or the browser
@@ -29,9 +31,19 @@ async function request(path, options = {}) {
   return body
 }
 
-/** The Monday-to-Sunday week containing `date` (a "yyyy-MM-dd" string), or this week if omitted. */
-export function getWeek(date) {
-  return request('/api/schedule/week' + (date ? `?date=${date}` : ''))
+/**
+ * The Monday-to-Sunday week containing `date` (a "yyyy-MM-dd" string), or this week if omitted.
+ * `position` (optional) limits the shifts and totals to one position.
+ */
+export function getWeek(date, position) {
+  const params = new URLSearchParams()
+  if (date) params.set('date', date)
+  if (position) params.set('position', position)
+  return request(`/api/schedule/week?${params}`)
+}
+
+export function getEmployees() {
+  return request('/api/employees')
 }
 
 /** `employee` is { name, position, hourlyRate }. */
@@ -42,4 +54,12 @@ export function createEmployee(employee) {
 /** `shift` is { employeeId, date: "yyyy-MM-dd", startTime: "HH:mm", endTime: "HH:mm" }. */
 export function createShift(shift) {
   return request('/api/shifts', { method: 'POST', body: JSON.stringify(shift) })
+}
+
+export function updateShift(id, shift) {
+  return request(`/api/shifts/${id}`, { method: 'PUT', body: JSON.stringify(shift) })
+}
+
+export function deleteShift(id) {
+  return request(`/api/shifts/${id}`, { method: 'DELETE' })
 }

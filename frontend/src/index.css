@@ -150,6 +150,17 @@ button.secondary:hover {
   border-color: var(--muted);
 }
 
+button.danger {
+  background: var(--surface);
+  color: var(--error-text);
+  border-color: var(--error-text);
+}
+
+button.danger:hover {
+  filter: none;
+  background: var(--error-bg);
+}
+
 button:focus-visible,
 input:focus-visible,
 select:focus-visible {
@@ -217,6 +228,10 @@ select:focus-visible {
 
 .shift-card {
   display: grid;
+  width: 100%;
+  text-align: left;
+  font-weight: 400;
+  color: var(--text);
   background: var(--surface);
   border: 1px solid var(--border);
   border-left: 4px solid var(--position-color);
@@ -224,6 +239,16 @@ select:focus-visible {
   padding: 0.35rem 0.4rem;
   font-size: 0.85rem;
   line-height: 1.35;
+}
+
+.shift-card:hover {
+  filter: none;
+  border-color: var(--muted);
+  border-left-color: var(--position-color);
+}
+
+.shift-card.selected {
+  box-shadow: 0 0 0 2px var(--position-color);
 }
 
 .shift-card .position {
@@ -248,6 +273,21 @@ select:focus-visible {
   border-radius: 3px;
   background: #fff1d6;
   color: #8a5300;
+}
+
+/* ---------- Filter ---------- */
+
+.filter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.filter select {
+  width: auto;
+  min-width: 10rem;
 }
 
 /* ---------- Forms ---------- */
@@ -308,4 +348,14 @@ select {
 
 .field-hint {
   color: var(--muted);
+}
+
+.form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.form-actions .danger {
+  margin-left: auto;
 }

@@ -20,10 +20,11 @@ public class ScheduleController {
 		this.service = service;
 	}
 
-	/** The Monday-to-Sunday week containing {@code date} (default: today). */
+	/** The Monday-to-Sunday week containing {@code date} (default: today), optionally for one position. */
 	@GetMapping("/week")
-	public WeekSchedule week(@RequestParam(required = false) LocalDate date) {
-		return service.getWeek(date != null ? date : LocalDate.now());
+	public WeekSchedule week(@RequestParam(required = false) LocalDate date,
+			@RequestParam(required = false) String position) {
+		return service.getWeek(date != null ? date : LocalDate.now(), position);
 	}
 
 }

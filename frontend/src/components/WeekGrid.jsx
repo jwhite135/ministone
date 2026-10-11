@@ -2,8 +2,11 @@ import { addDays, formatDay, formatHours, formatWeekday, todayIso } from '../for
 
 const POSITION_COLORS = ['#b15d12', '#2f6fd6', '#8a3fb8', '#1e8a5a', '#c2334d', '#0f7f8f']
 
-/** `positions` is every position name; colors are handed out in alphabetical order so each differs. */
-export default function WeekGrid({ weekStart, shifts, positions }) {
+/**
+ * `positions` is every position name; colors are handed out in alphabetical order so each differs.
+ * Clicking a shift calls `onSelect(shift)`; `selectedId` highlights the shift being edited.
+ */
+export default function WeekGrid({ weekStart, shifts, positions, selectedId, onSelect }) {
   const days = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i))
   const today = todayIso()
   const sortedPositions = [...new Set(positions)].sort()
@@ -26,7 +29,15 @@ export default function WeekGrid({ weekStart, shifts, positions }) {
           ) : (
             <ul>
               {shiftsByDay[day].map((s) => (
-                <ShiftCard key={s.id} shift={s} color={colorFor(s.position)} carriedOver={s.date < weekStart} />
+                <li key={s.id}>
+                  <ShiftCard
+                    shift={s}
+                    color={colorFor(s.position)}
+                    carriedOver={s.date < weekStart}
+                    selected={s.id === selectedId}
+                    onSelect={onSelect}
+                  />
+                </li>
               ))}
             </ul>
           )}
@@ -36,10 +47,18 @@ export default function WeekGrid({ weekStart, shifts, positions }) {
   )
 }
 
-function ShiftCard({ shift, color, carriedOver }) {
+function ShiftCard({ shift, color, carriedOver, selected, onSelect }) {
   const partial = Number(shift.hoursInWeek) !== Number(shift.hours)
   return (
-    <li className="shift-card" style={{ '--position-color': color }}>
+    // A real <button>, so it works with the keyboard (Tab + Enter) and screen readers.
+    <button
+      type="button"
+      className={'shift-card' + (selected ? ' selected' : '')}
+      style={{ '--position-color': color }}
+      aria-pressed={selected}
+      title="Click to edit"
+      onClick={() => onSelect(shift)}
+    >
       <strong>{shift.employeeName}</strong>
       <span className="position">{shift.position}</span>
       <span className="time">
@@ -54,6 +73,6 @@ function ShiftCard({ shift, color, carriedOver }) {
       <span className="muted small">
         {partial ? `${formatHours(shift.hoursInWeek)} this week of ${formatHours(shift.hours)}` : formatHours(shift.hours)}
       </span>
-    </li>
+    </button>
   )
 }
