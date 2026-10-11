@@ -1,6 +1,7 @@
 package com.minishiftsync.model;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -15,4 +16,19 @@ public record Shift(
 		LocalDate date,
 		@JsonFormat(pattern = "HH:mm") LocalTime startTime,
 		@JsonFormat(pattern = "HH:mm") LocalTime endTime) {
+
+	// These methods aren't named getX/isX, so Jackson doesn't write them to JSON.
+
+	public boolean endsNextDay() {
+		return !endTime.isAfter(startTime);
+	}
+
+	public LocalDateTime startDateTime() {
+		return date.atTime(startTime);
+	}
+
+	public LocalDateTime endDateTime() {
+		return (endsNextDay() ? date.plusDays(1) : date).atTime(endTime);
+	}
+
 }

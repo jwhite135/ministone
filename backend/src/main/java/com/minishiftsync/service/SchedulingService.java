@@ -1,7 +1,9 @@
 package com.minishiftsync.service;
 
-import java.util.Comparator;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Locale;
 
 import org.springframework.stereotype.Service;
 
@@ -15,8 +17,7 @@ import com.minishiftsync.web.dto.ShiftRequest;
 @Service
 public class SchedulingService {
 
-	private static final Comparator<Shift> BY_START = Comparator.comparing(Shift::date)
-			.thenComparing(Shift::startTime);
+	private static final DateTimeFormatter DAY = DateTimeFormatter.ofPattern("EEE, MMM d", Locale.US);
 
 	private final DataStore store;
 
@@ -41,18 +42,37 @@ public class SchedulingService {
 	public List<Shift> listShifts(Long employeeId) {
 		return store.findAllShifts().stream()
 				.filter(s -> employeeId == null || s.employeeId() == employeeId)
-				.sorted(BY_START)
+				.sorted(ScheduleRules.BY_START)
 				.toList();
 	}
 
-	public Shift createShift(ShiftRequest request) {
-		if (store.findEmployee(request.employeeId()).isEmpty()) {
-			throw ApiException.badRequest("Employee " + request.employeeId() + " does not exist.");
-		}
+	/**
+	 * Synchronized so the overlap check and the insert happen as one step. Otherwise two requests
+	 * arriving together could both pass the check and both be saved ("check-then-act" race).
+	 */
+	public synchronized Shift createShift(ShiftRequest request) {
+		Employee employee = store.findEmployee(request.employeeId())
+				.orElseThrow(() -> ApiException.badRequest("Employee " + request.employeeId() + " does not exist."));
 		if (request.startTime().equals(request.endTime())) {
 			throw ApiException.badRequest("A shift's start and end time cannot be the same.");
 		}
-		return store.addShift(request.employeeId(), request.date(), request.startTime(), request.endTime());
+
+		Shift candidate = new Shift(0, employee.id(), request.date(), request.startTime(), request.endTime());
+		ScheduleRules.findOverlap(candidate, store.findAllShifts()).ifPresent(existing -> {
+			throw ApiException.conflict(employee.name() + " already has a shift on " + describe(existing)
+					+ " that overlaps this one.");
+		});
+
+		return store.addShift(employee.id(), request.date(), request.startTime(), request.endTime());
+	}
+
+	public WeekSchedule getWeek(LocalDate anyDayInWeek) {
+		return ScheduleRules.summarizeWeek(anyDayInWeek, store.findAllEmployees(), store.findAllShifts());
+	}
+
+	private static String describe(Shift shift) {
+		return shift.date().format(DAY) + " from " + shift.startTime() + " to " + shift.endTime()
+				+ (shift.endsNextDay() ? " (next day)" : "");
 	}
 
 }

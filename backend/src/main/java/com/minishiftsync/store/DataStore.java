@@ -48,7 +48,7 @@ public class DataStore {
 	}
 
 	/** Used by tests to control the file location and the date sample data is built around. */
-	DataStore(JsonMapper jsonMapper, Path dataFile, LocalDate today) {
+	public DataStore(JsonMapper jsonMapper, Path dataFile, LocalDate today) {
 		this.jsonMapper = jsonMapper;
 		this.dataFile = dataFile.toAbsolutePath();
 		if (Files.exists(this.dataFile)) {
