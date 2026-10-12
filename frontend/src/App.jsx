@@ -36,6 +36,7 @@ export default function App() {
 
   const refresh = () => setRefreshKey((k) => k + 1)
   const positions = [...new Set(employees.map((e) => e.position))].sort()
+  const today = todayIso()
 
   function handleShiftSaved(shift) {
     setEditing(null)
@@ -71,7 +72,7 @@ export default function App() {
                 weekStart={week.weekStart}
                 weekEnd={week.weekEnd}
                 onPrev={() => setWeekDate(addDays(week.weekStart, -7))}
-                onToday={() => setWeekDate(todayIso())}
+                onToday={() => setWeekDate(today)}
                 onNext={() => setWeekDate(addDays(week.weekStart, 7))}
               />
             </div>
@@ -99,10 +100,10 @@ export default function App() {
           <div className="forms">
             <section>
               <ShiftForm
-                key={editing?.id ?? 'new'}
+                key={editing?.id ?? `new-${week.weekStart}`}
                 employees={employees}
                 shift={editing}
-                defaultDate={todayIso()}
+                defaultDate={today >= week.weekStart && today <= week.weekEnd ? today : week.weekStart}
                 onSaved={handleShiftSaved}
                 onDeleted={handleShiftDeleted}
                 onCancel={() => setEditing(null)}

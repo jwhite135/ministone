@@ -4,6 +4,14 @@ A small staff-scheduling app: a scaled-down prototype of our capstone project, S
 
 Everything runs locally. There is no database or cloud service; data is saved to a JSON file.
 
+## 🎥 Demo video
+
+**[▶ Watch the demo on YouTube](https://youtu.be/loR_olZrf5I)**
+
+[![Mini ShiftSync demo video](https://img.youtube.com/vi/loR_olZrf5I/maxresdefault.jpg)](https://youtu.be/loR_olZrf5I)
+
+## Screenshot
+
 ![Mini ShiftSync weekly view](docs/screenshot.png)
 
 ## Features
@@ -14,7 +22,7 @@ Everything runs locally. There is no database or cloud service; data is saved to
 - **Weekly view:** a Monday-to-Sunday grid with previous/next week navigation.
 - **Hours and estimated pay** per employee and for the week. Overnight shifts that cross into the next week are split between the two weeks.
 - **Stretch goals:** filter by position, and edit or delete shifts (click a shift card).
-- **Persistence:** data is saved to `backend/data/shiftsync.json` and survives restarts. The first run seeds four employees and a week of sample shifts.
+- **Persistence:** data is saved to `backend/data/shiftsync.json` and survives restarts. The first run seeds four employees and sample shifts for next week.
 
 ## Tech stack
 
@@ -53,7 +61,7 @@ Always start the backend from inside `backend/`, because the data file path is r
 
 ### Reset to sample data
 
-Stop the backend, delete `backend/data/shiftsync.json`, and start it again. The sample shifts are generated for the current week.
+Stop the backend, delete `backend/data/shiftsync.json`, and start it again. The sample shifts are generated for next week, so click **Next →** to see them.
 
 ### Run the tests
 
@@ -126,7 +134,3 @@ These are acceptable for a prototype, but the real ShiftSync, with a relational 
 - **Not covered:** authentication, overtime rules, time zones and daylight-saving transitions, editing or deleting employees, frontend tests.
 
 The layering keeps a database migration small: replacing `DataStore` with Spring Data JPA repositories would leave the service, rules, controllers, and frontend almost unchanged.
-
-## Demo
-
-A walkthrough of the features is in [docs/DEMO.md](docs/DEMO.md).

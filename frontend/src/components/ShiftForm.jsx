@@ -5,7 +5,7 @@ import useApiSubmit from '../useApiSubmit.js'
 import Field from './Field.jsx'
 import { fieldProps } from './fieldProps.js'
 
-// Rendered with key={shift?.id ?? 'new'}, so selecting another shift remounts it with fresh state.
+// Rendered with a key per shift (or per week when adding), so it remounts with fresh state.
 export default function ShiftForm({ employees, shift, defaultDate, onSaved, onDeleted, onCancel }) {
   const editing = shift != null
   const [form, setForm] = useState(() =>
