@@ -29,7 +29,7 @@ class SchedulingServiceTest {
 
 	@BeforeEach
 	void setUp() {
-		DataStore store = new DataStore(JsonMapper.builder().build(), tempDir.resolve("data.json"), MON);
+		DataStore store = new DataStore(JsonMapper.builder().build(), tempDir.resolve("data.json"), MON.minusWeeks(1));
 		service = new SchedulingService(store);
 	}
 

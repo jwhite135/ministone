@@ -17,7 +17,8 @@ public final class SampleData {
 	}
 
 	public static StoreData create(LocalDate today) {
-		LocalDate monday = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+		// Seed next week so demo shifts are added in the future, not the past.
+		LocalDate monday = today.with(TemporalAdjusters.next(DayOfWeek.MONDAY));
 
 		List<Employee> employees = List.of(
 				new Employee(1, "Ava Lopez", "Server", new BigDecimal("15.50")),

@@ -28,7 +28,7 @@ class DataStoreTest {
 	Path tempDir;
 
 	@Test
-	void seedsSampleDataWhenFileIsMissing() {
+	void seedsNextWeekWhenFileIsMissing() {
 		Path file = tempDir.resolve("data.json");
 
 		DataStore store = new DataStore(jsonMapper, file, TODAY);
@@ -36,7 +36,7 @@ class DataStoreTest {
 		assertThat(file).exists();
 		assertThat(store.findAllEmployees()).hasSize(4);
 		assertThat(store.findAllShifts()).allSatisfy(s -> assertThat(s.date())
-				.isBetween(LocalDate.of(2026, 10, 12), LocalDate.of(2026, 10, 18)));
+				.isBetween(LocalDate.of(2026, 10, 19), LocalDate.of(2026, 10, 25)));
 	}
 
 	@Test
